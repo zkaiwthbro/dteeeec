@@ -1,6 +1,5 @@
 
 local scripts = {
-    "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/agp.lua",
     "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/chetsopen.lua",
     "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/big1.lua"
 }
