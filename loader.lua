@@ -1,7 +1,7 @@
 
 local scripts = {
     "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/chetsopen.lua",
-    "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/big1.lua"
+    "https://raw.githubusercontent.com/zkaiwthbro/dteeeec/refs/heads/main/big.lua"
 }
 
 for i, url in ipairs(scripts) do
