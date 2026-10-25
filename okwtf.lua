@@ -25871,11 +25871,11 @@ function S.buildServerTab(Window)
         S.hubLog("Server Tab Error: Window is nil")
         return
     end
-
+end
     pcall(function()
         if S._klzeHub and S._klzeHub.complete then
             S._klzeHub.complete(S._klzeWindow, S._klzeLibrary, S._klzeSave, S._klzeTheme, {
-                ToggleKeybind = "RightControl",
+                ToggleKeybind = "Tab",
                 DiscordInvite = KLZE.discord,
                 SiteUrl = KLZE.site,
                 Game = KLZE.game,
