@@ -5,26 +5,35 @@ local scripts = {
 
 for i, url in ipairs(scripts) do
     task.spawn(function()
-        local ok, err = pcall(function()
-            local success, result = pcall(function()
-                return game:HttpGet(url)
-            end)
-            if success and result then
-                local fn, syntaxErr = loadstring(result)
-                if fn then
-                    fn()
-                else
-                    error("Loadstring error: " .. tostring(syntaxErr))
-                end
-            else
-                error("HTTPGet failed: " .. tostring(result))
-            end
+        -- Step 1: Fetch the script via HTTPGet safely
+        local success, body = pcall(function()
+            return game:HttpGet(url)
         end)
         
-        if ok then
+        if not success then
+            warn("[Loader] #" .. i .. " HTTPGet failed: " .. tostring(body))
+            return
+        end
+
+        -- Step 2: Check if GitHub returned a 404 or error page
+        if body:find("404: Not Found") or body:find("403: Forbidden") then
+            warn("[Loader] #" .. i .. " failed: The URL returned an error page (Check if the link/branch is correct).")
+            return
+        end
+
+        -- Step 3: Compile the script using loadstring
+        local fn, syntaxErr = loadstring(body)
+        if not fn then
+            warn("[Loader] #" .. i .. " Syntax Error in script: " .. tostring(syntaxErr))
+            return
+        end
+
+        -- Step 4: Run the compiled function safely
+        local runSuccess, runErr = pcall(fn)
+        if runSuccess then
             print("[Loader] Loaded #" .. i .. " ✓")
         else
-            warn("[Loader] Failed #" .. i .. ": " .. tostring(err))
+            warn("[Loader] #" .. i .. " Runtime Error during execution: " .. tostring(runErr))
         end
     end)
 end
