@@ -200,8 +200,8 @@ local Autofarm = {
     camBackup = nil,
     depthHudVisible = false,
     -- Run is tween-only. Loot stays a Farm/Auto Loot filter (Loot.enabled).
-    autoLoot = false,
-    autoSell = true,
+    autoLoot = true,
+    autoSell = false,
     sellThreshold = 10, -- sack fill trigger (TradeSell / drill / shredder)
     dropInDrill = false, -- exclusive dump dest vs sell / shredder (whole bag)
     dropInShredder = false, -- exclusive dump dest: whole bag → ScrapShredder
@@ -612,6 +612,7 @@ local BLACKLIST_OPTIONS = {
     "Tool",
     "Shard",
     "Dynamite",
+    "King"
 }
 
 local BLACKLIST_ORE_TYPES = {}
@@ -669,6 +670,7 @@ local LOOT_ESP_COLORS = {
     Medkit = Color3.fromRGB(100, 255, 150),
     Tool = Color3.fromRGB(200, 200, 120),
     Shard = Color3.fromRGB(255, 140, 255),
+    Kings = Color3.fromRGB(255, 140, 255),
 }
 
 local Services = {}
@@ -6586,6 +6588,10 @@ function S.itemCategoryKey(item)
     if name:find("dynamite", 1, true) then
         return "dynamite"
     end
+        if name:find("kings", 1, true) then
+        return "king's"
+    end
+
     local rarity = item:GetAttribute("Rarity")
     local fields = {
         item:GetAttribute("DisplayCategory"),
@@ -6603,6 +6609,31 @@ function S.itemCategoryKey(item)
         end
     end
     return ""
+end
+
+function S.isBlacklisted(item)
+    if not item then
+        return false
+    end
+
+    -- BYPASS: Ensure any "King's" item ignores all blacklist rules and clashing commands
+    local name = string.lower(item.Name or "")
+    local display = string.lower(tostring(item:GetAttribute("DisplayName") or ""))
+    if name:find("king's", 1, true) or name:find("kings", 1, true) or display:find("king's", 1, true) or display:find("kings", 1, true) then
+        return false
+    end
+
+    if not Loot.useBlacklist or #Loot.blacklistCategories == 0 then
+        return false
+    end
+
+    local blocked = {}
+    for _, blockedName in ipairs(Loot.blacklistCategories) do
+        local key = string.lower(tostring(blockedName or ""))
+        if key ~= "" then
+            blocked[key] = true
+        end
+    end
 end
 
 function S.isBlacklisted(item)
@@ -25865,13 +25896,14 @@ function S.buildUI()
     safeTab("Shop", function()
         S.buildAutoBuyTab(Window)
     end)
+end
 
 function S.buildServerTab(Window)
     if not Window then
         S.hubLog("Server Tab Error: Window is nil")
         return
     end
-end
+
     pcall(function()
         if S._klzeHub and S._klzeHub.complete then
             S._klzeHub.complete(S._klzeWindow, S._klzeLibrary, S._klzeSave, S._klzeTheme, {
